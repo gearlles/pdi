@@ -24,7 +24,7 @@ public class App
 {
     public static void main( String[] args )
     {
-    	InputStream in = Main.class.getResourceAsStream("/image3.jpg");
+    	InputStream in = Main.class.getResourceAsStream("/image1.jpg");
     	
     	double[][] filter = {	{1, 1, 1},
     							{1, 2, 1},
@@ -32,9 +32,9 @@ public class App
     	try {
 			double[][] image = ImageIOUtils.readGrayScaleImage(in);
 			ImageProcessing ip = new ImageProcessing();
-			BufferedImage bi = ImageIOUtils.convertToBufferedImage(ImageUtils.normalize(ip.median(image, 5)));
+			BufferedImage bi = ImageIOUtils.convertToBufferedImage(ImageUtils.normalize(ip.localHistogramStatistics(image, 3, 10, 0.2, 0.001, 0.5)));
 			
-			JFrame frame = new JFrame("Filtro de média");
+			JFrame frame = new JFrame("PDI");
 			frame.getContentPane().setLayout(new FlowLayout());
 			frame.getContentPane().add(new JLabel(new ImageIcon(ImageIOUtils.convertToBufferedImage(image))));
 			frame.getContentPane().add(new JLabel(new ImageIcon(bi)));

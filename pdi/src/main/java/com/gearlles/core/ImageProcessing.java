@@ -116,4 +116,82 @@ public class ImageProcessing {
 		return resultImage;
 	}
 	
+	public double[][] localHistogramStatistics(double[][] image, int windowSize, double E, double k0, double k1, double k2) {
+		int pixelsAmmount = image.length * image[0].length;
+		int radius = windowSize/2;
+		double[][] resultImage = new double[image.length][image[0].length];
+		double globalMean = 0;
+		double globalMeanDeviation = 0;
+		double[] globalScalesProbabilities =  new double[MAXIMUM_GRAY_LEVEL + 1];
+		
+		for (int i = 0; i < image.length; i++) {
+			for (int j = 0; j < image[0].length; j++) {
+				globalScalesProbabilities[(int) image[i][j]]++;
+			}
+		}
+		
+		for (int i = 0; i < globalScalesProbabilities.length; i++) {
+			globalScalesProbabilities[i] /= pixelsAmmount;
+		}
+		
+		// Global mean
+		for (int i = 0; i < globalScalesProbabilities.length; i++) {
+			globalMean += i * globalScalesProbabilities[i];
+		}
+		
+		for (int k = 0; k < globalScalesProbabilities.length; k++) {
+			globalMeanDeviation += Math.pow(k - globalMean, 2) * globalScalesProbabilities[k];
+		}
+		
+		globalMeanDeviation = Math.sqrt(globalMeanDeviation);
+		
+		
+		// Applying filter
+		for (int i = radius; i < image.length - radius; i++) {
+			for (int j = radius; j < image[0].length - radius; j++) {
+				double[] scalesProbabilities = new double[MAXIMUM_GRAY_LEVEL + 1];
+				double sum = 0;
+				double variance = 0;
+				
+				for (int windowX = 0, neighborX = i - radius; windowX < windowSize; windowX++, neighborX++) {
+					for (int windowY = 0, neighborY = j - radius; windowY < windowSize; windowY++, neighborY++) {
+						double intensity = image[neighborX][neighborY];
+						scalesProbabilities[(int) intensity]++;
+					}
+				}
+				
+				for (int k = 0; k < scalesProbabilities.length; k++) {
+					scalesProbabilities[k] /= (double) windowSize * windowSize;
+				}
+				
+				for (int k = 0; k < scalesProbabilities.length; k++) {
+					sum += k * scalesProbabilities[k];
+				}
+				
+				for (int k = 0; k < scalesProbabilities.length; k++) {
+					variance += Math.pow(k - sum, 2) * scalesProbabilities[k];
+				}
+				
+				double pixelIntensity = image[i][j];
+				double standardDeviation = Math.sqrt(variance);
+				
+				if (sum <= k0 * globalMean && k1 * globalMeanDeviation <= standardDeviation && standardDeviation <= k2 * globalMeanDeviation) {
+					resultImage[i][j] = E * pixelIntensity;
+				} else {
+					resultImage[i][j] = pixelIntensity;
+				}
+			}
+		}
+		
+		return resultImage;
+	}
+	
+	public void homomorphic(double[][] image) {
+
+		for (int i = 0; i < image.length; i++) {
+			for (int j = 0; j < image[0].length; j++) {
+			
+			}
+		}
+	}
 }
