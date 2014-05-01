@@ -14,6 +14,7 @@ import org.apache.log4j.chainsaw.Main;
 
 import com.gearlles.core.ImageProcessing;
 import com.gearlles.utils.ImageUtils;
+import com.gearlles.utils.ImageIOUtils;
 
 /**
  * Hello world!
@@ -23,16 +24,19 @@ public class App
 {
     public static void main( String[] args )
     {
-    	InputStream in = Main.class.getResourceAsStream("/image1.jpg");
+    	InputStream in = Main.class.getResourceAsStream("/image3.jpg");
+    	
+    	double[][] filter = {	{1, 1, 1},
+    							{1, 2, 1},
+    							{1, 1, 1}	};
     	try {
-			double[][] image = ImageUtils.readGrayScaleImage(in);
+			double[][] image = ImageIOUtils.readGrayScaleImage(in);
 			ImageProcessing ip = new ImageProcessing();
+			BufferedImage bi = ImageIOUtils.convertToBufferedImage(ImageUtils.normalize(ip.median(image, 5)));
 			
-			BufferedImage bi = ImageUtils.convertToBufferedImage(ip.equalizeHistogram(image));
-			
-			JFrame frame = new JFrame();
+			JFrame frame = new JFrame("Filtro de média");
 			frame.getContentPane().setLayout(new FlowLayout());
-			frame.getContentPane().add(new JLabel(new ImageIcon(ImageUtils.convertToBufferedImage(image))));
+			frame.getContentPane().add(new JLabel(new ImageIcon(ImageIOUtils.convertToBufferedImage(image))));
 			frame.getContentPane().add(new JLabel(new ImageIcon(bi)));
 			frame.pack();
 			frame.setVisible(true);

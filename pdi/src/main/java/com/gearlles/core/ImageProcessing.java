@@ -1,5 +1,7 @@
 package com.gearlles.core;
 
+import java.util.Arrays;
+
 public class ImageProcessing {
 	
 	private final int MAXIMUM_GRAY_LEVEL = 255;
@@ -38,4 +40,80 @@ public class ImageProcessing {
 		
 		return equalizatedImage;
 	}
+	
+	public double[][] applyFilter(double[][] image, double[][] filter, double multiplier) {
+		double[][] resultImage = new double[image.length][image[0].length];
+		int radiusX = filter.length/2;
+		int radiusY = filter[0].length/2;
+		
+		for (int i = radiusX; i < image.length - radiusX; i++) {
+			for (int j = radiusY; j < image[0].length - radiusY; j++) {
+				double sum = 0;
+				for (int filterX = 0, neighborX = i - radiusX; filterX < filter.length; filterX++, neighborX++) {
+					for (int filterY = 0, neighborY = j - radiusY; filterY < filter[0].length; filterY++, neighborY++) {
+						sum += image[neighborX][neighborY] * filter[filterX][filterY];
+					}
+				}
+				resultImage[i][j] = multiplier * sum;
+			}
+		}
+		
+		return resultImage;
+	}
+	
+	public double[][] sobel(double[][] image) {
+		double[][] resultImage = new double[image.length][image[0].length];
+    	double[][] sobelX = {	{1, 2,	1},
+								{0,	0, 0},
+								{-1, -2, -1}};
+    	double[][] sobelY = {	{-1, 0,	1},
+								{-2, 0, 2},
+								{-1, 0, 1}};
+
+    	
+		for (int i = 1; i < image.length - 1; i++) {
+			for (int j = 1; j < image[0].length - 1; j++) {
+				double sumX = 0;
+				double sumY = 0;
+				for (int filterX = 0, neighborX = i - 1; filterX < sobelX.length; filterX++, neighborX++) {
+					for (int filterY = 0, neighborY = j - 1; filterY < sobelX[0].length; filterY++, neighborY++) {
+						sumX += image[neighborX][neighborY] * sobelX[filterX][filterY];
+						sumY += image[neighborX][neighborY] * sobelY[filterX][filterY];
+					}
+				}
+				resultImage[i][j] = Math.sqrt(Math.pow(sumX, 2) + Math.pow(sumY, 2));
+			}
+		}
+		return resultImage;
+	}
+	
+	public double[][] median(double[][] image, int windowSize) {
+		double[][] resultImage = new double[image.length][image[0].length];
+		int radius = windowSize/2;
+		
+		for (int i = radius; i < image.length - radius; i++) {
+			for (int j = radius; j < image[0].length - radius; j++) {
+				double[] window = new double[windowSize * windowSize];
+				int windowArrayCounter = 0;
+				for (int windowX = 0, neighborX = i - radius; windowX < windowSize; windowX++, neighborX++) {
+					for (int windowY = 0, neighborY = j - radius; windowY < windowSize; windowY++, neighborY++) {
+						window[windowArrayCounter++] = image[neighborX][neighborY];
+					}
+				}
+				
+				Arrays.sort(window);
+				
+				double median;
+				if (window.length % 2 == 0) {
+				    median = ((double)window[window.length/2] + (double)window[window.length/2 - 1])/2;
+				} else {
+				    median = (double) window[window.length/2];
+				}
+				
+				resultImage[i][j] = median;
+			}
+		}
+		return resultImage;
+	}
+	
 }
