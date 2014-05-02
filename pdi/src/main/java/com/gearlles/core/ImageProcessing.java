@@ -2,7 +2,14 @@ package com.gearlles.core;
 
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.gearlles.utils.MathUtils;
+
 public class ImageProcessing {
+	
+	private Logger logger = LoggerFactory.getLogger(ImageProcessing.class);
 	
 	private final int MAXIMUM_GRAY_LEVEL = 255;
 	
@@ -186,12 +193,45 @@ public class ImageProcessing {
 		return resultImage;
 	}
 	
-	public void homomorphic(double[][] image) {
-
+	public double[][] homomorphic(double[][] image, double lowGamma, double highGamma, double c, double D0) {
+		
+		logger.debug("Applying homomorphic filter...");
+		
+		double[][] dftInputImage = new double[image.length][image[0].length];
 		for (int i = 0; i < image.length; i++) {
 			for (int j = 0; j < image[0].length; j++) {
-			
+				dftInputImage[i][j] = Math.log(image[i][j] + 1) * Math.pow(-1, i + j); // +1 to avoid Ln 0
 			}
 		}
+		
+		double[][][] frequencyDomainImage = MathUtils.DFT(dftInputImage);
+		
+		logger.debug("Frequency domain image generated!");
+		
+		double[][] frequencyImageFilteredReal = new double[image.length][image[0].length];
+		double[][] frequencyImageFilteredImaginary = new double[image.length][image[0].length];
+		
+		for (int u = 0; u < frequencyDomainImage[0].length; u++) {
+			for (int v = 0; v < frequencyDomainImage[0][0].length; v++) {
+				double H = (highGamma - lowGamma) * (1 - Math.exp( -c * (Math.pow(MathUtils.euclidianDistance(image.length / 2d, image[0].length / 2d, u, v), 2) / (D0 * D0)) )) + lowGamma;
+				frequencyImageFilteredReal[u][v] = H * frequencyDomainImage[0][u][v];
+				frequencyImageFilteredImaginary[u][v] = H * frequencyDomainImage[1][u][v];
+			}
+		}
+		
+		logger.debug("Homomorphic filter applied!");
+		
+		double[][] spaceDomainImage = MathUtils.IDFT(frequencyImageFilteredReal, frequencyImageFilteredImaginary);
+		
+		logger.debug("IDFT applied!");
+		
+		double[][] dftOuputImage = new double[image.length][image[0].length];
+		for (int i = 0; i < image.length; i++) {
+			for (int j = 0; j < image[0].length; j++) {
+				dftOuputImage[i][j] = (Math.exp(spaceDomainImage[i][j] * Math.pow(-1, i + j)) - 1); // -1 because we did +1 to avoid Ln 0
+			}
+		}
+		
+		return dftOuputImage;
 	}
 }
