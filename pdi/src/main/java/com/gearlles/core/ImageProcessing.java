@@ -228,7 +228,7 @@ public class ImageProcessing {
 		double[][] dftOuputImage = new double[image.length][image[0].length];
 		for (int i = 0; i < image.length; i++) {
 			for (int j = 0; j < image[0].length; j++) {
-				dftOuputImage[i][j] = (Math.exp(spaceDomainImage[i][j] * Math.pow(-1, i + j)) - 1); // -1 because we did +1 to avoid Ln 0
+				dftOuputImage[i][j] = Math.exp(spaceDomainImage[i][j] * Math.pow(-1, i + j)) - 1; // -1 because we did +1 to avoid Ln 0
 			}
 		}
 		
