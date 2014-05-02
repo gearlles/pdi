@@ -123,6 +123,28 @@ public class ImageProcessing {
 		return resultImage;
 	}
 	
+	public double[][] skinSmoothing(double[][] image) {
+		double[][] result = new double[image.length][image[0].length];
+		int maxIterations = 20;
+		
+		for (int i = 3; i < maxIterations; i++) {
+			double[][] temp = median(image, i);
+			for (int j = 0; j < temp.length; j++) {
+				for (int k = 0; k < temp[0].length; k++) {
+					result[j][k] += temp[j][k] * i;
+				}
+			}
+		}
+		
+		for (int j = 0; j < result.length; j++) {
+			for (int k = 0; k < result[0].length; k++) {
+				result[j][k] /= maxIterations - 3;
+			}
+		}
+		
+		return result;
+	}
+	
 	public double[][] localHistogramStatistics(double[][] image, int windowSize, double E, double k0, double k1, double k2) {
 		int pixelsAmmount = image.length * image[0].length;
 		int radius = windowSize/2;

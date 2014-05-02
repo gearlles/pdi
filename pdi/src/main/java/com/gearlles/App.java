@@ -24,7 +24,7 @@ public class App
 {
     public static void main( String[] args )
     {
-    	InputStream in = Main.class.getResourceAsStream("/4_small2.jpg");
+    	InputStream in = Main.class.getResourceAsStream("/image3.jpg");
     	
     	double[][] filter = {	{1, 1, 1},
     							{1, 2, 1},
@@ -34,7 +34,8 @@ public class App
 			double[][] image = ImageIOUtils.readGrayScaleImage(in);
 			ImageProcessing ip = new ImageProcessing();
 //			BufferedImage bi = ImageIOUtils.convertToBufferedImage(ImageUtils.normalize(ip.localHistogramStatistics(image, 3, 10, 0.2, 0.001, 0.5)));
-			BufferedImage bi = ImageIOUtils.convertToBufferedImage(ImageUtils.normalize(ip.homomorphic(image, 0.5d, 1.5d, 0.5d, 80)));
+//			BufferedImage bi = ImageIOUtils.convertToBufferedImage(ImageUtils.normalize(ip.homomorphic(image, 0.5d, 1.5d, 0.5d, 80)));
+			BufferedImage bi = ImageIOUtils.convertToBufferedImage(ImageUtils.normalize(ip.skinSmoothing(image)));
 			
 			JFrame frame = new JFrame("PDI");
 			frame.getContentPane().setLayout(new FlowLayout());
